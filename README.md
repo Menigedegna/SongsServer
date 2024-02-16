@@ -12,7 +12,7 @@ Authentication is not required.
 ## Endpoints
 ### 1. Songs list
 
-**URL**: '/api/Track'<br>
+**URL**: '/api/Track/'<br>
 **Method**: GET<br>
 **Description**: This endpoint returns a 'data' object containing a list of songs, and 'stats' object containing overall count of songs, artists, albums and genre.<br>
 **Parameters**: None<br>
@@ -183,17 +183,13 @@ curl -X GET https://songserver.onrender.com/api/Track/id/65ce42d81c21bc2f1da3b6c
 If song is not found in the  database, "data" object is an empty list. Same as in step 2.
 
 **Error Handling**: <br>
-If id is not 24 characters long.
-- **HTTP Status Code**: 500 SERVER ERROR
-- **Body**
-```
-  id is 24 characters long
-
-```
+- If id is not 24 characters long.
+     **HTTP Status Code**: 400
+     **Message**: Malformed parameter: the parameter id should be 24 characters long
 
 ### 4. Song(s) filtered by artist
 
-**URL**: '/api/Artist/{fistName}/{lastName}'<br>
+**URL**: '/api/Artist/{fistName}/{lastName}/'<br>
 **Method**: GET<br>
 **Description**: This endpoint returns list of songs filtered by artist. It returns a 'data' object containing a list of songs, and 'stats' object containing count of songs, artists, albums and genre in filtered list.<br>
 **Parameters**: <br>
@@ -244,10 +240,12 @@ curl -X GET https://songserver.onrender.com/api/Artist/The%20First/Artist
     {"totalSongs":2,"totalArtists":1,"totalAlbums":1,"totalGenres":2}
 }
 ```
+**Resource Not Found**: <br>
+If Aritst is not found in the  database, "data" object is an empty list. Same as in step 2.
 
 ### 5. Song(s) filtered by album
 
-**URL**: '/api/Artist/{fistName}/{lastName}/{album}'<br>
+**URL**: '/api/Artist/{fistName}/{lastName}/{album}/'<br>
 **Method**: GET<br>
 **Description**: This endpoint returns list of songs filtered by artist and album. It returns a 'data' object containing a list of songs, and 'stats' object containing count of songs, artists, albums and genre in filtered list.<br>
 **Parameters**: <br>
@@ -302,10 +300,12 @@ curl -X GET https://songserver.onrender.com/api/Artist/The%20First/Artist/The%20
     {"totalSongs":2,"totalArtists":1,"totalAlbums":1,"totalGenres":2}
 }
 ```
+**Resource Not Found**: <br>
+If Aritst or Album is not found in the  database, "data" object is an empty list. Same as in step 2.
 
 ### 6. Song(s) filtered by genre
 
-**URL**: '/api/Genre/{genre}'<br>
+**URL**: '/api/Genre/{genre}/'<br>
 **Method**: GET<br>
 **Description**: This endpoint returns list of songs filtered by genre. It returns a 'data' object containing a list of songs, and 'stats' object containing count of songs, artists, albums and genre in filtered list.<br>
 **Parameters**: <br>
@@ -352,27 +352,42 @@ curl -X GET https://songserver.onrender.com/api/Genre/Pop
     {"totalSongs":2,"totalArtists":2,"totalAlbums":1,"totalGenres":1}
 }
 ```
+
+**Resource Not Found**: <br>
+If Genre is not found in the  database, "data" object is an empty list. Same as in step 2.
+
 ### 7. Add a song
 
-**URL**: '/api/Track'<br>
+**URL**: '/api/Track/'<br>
 **Method**: POST<br>
-**Description**: This endpoint allows user to add a song. It returns either a success message or an error message.<br>
-**Parameters**: <br>
-- genre:<br>
-  Type: **string**<br>
-  Required: Yes<br>
-  Description: Genre's title<br>
+**Description**: This endpoint allows user to add a song. It returns either a success or an error message.<br>
+**Body**: <br>
+  Example of song input
+
+```
+{"song":
+    {
+        "Title": "My New Song",
+        "Artist": 
+        {
+            "FirstName": "The New", 
+            "LastName": "Artist"
+        },
+        "Album": "My New Album",
+        "Genre": "Ethiopic"
+    }
+}
+```
 **Example Request**:<br>
   The example code below returns the songs returned for genre: Pop.
 
 ```
 curl -X POST \
   https://songserver.onrender.com/api/Track \
-  -H 'Authorization: Bearer {token}' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{"song":{
-    "Title": "My New Song Song",
+    "Title": "My New Song",
     "Artist": {"FirstName": "The New", "LastName": "Artist"},
     "Album": "My New Album",
     "Genre": "Ethiopic"
@@ -383,10 +398,145 @@ curl -X POST \
 - HTTP Status Code: 200 OK
 - Response:
 ```
-Track successfully added.
+{
+    "message": 
+    "Track successfully added."
+}
+```
+**Error Handling**: <br>
+- If body is not provided by user:
+     **HTTP Status Code**: 400
+     **Message**: Missing request body: Song fields are incomplete
+- If body is provided by user without song object:
+     **HTTP Status Code**: 400
+     **Message**: Malformed request body: Please provide a json data with key 'song'
+- If song attributes are missing in song attributes:
+     **HTTP Status Code**: 400
+     **Message**: Malformed request body: Song fields are incomplete
+- If artist attributes are missing in song object:
+     **HTTP Status Code**: 400
+     **Message**: Malformed request body: Please provide a first and last name for artist
+
+### 7. Update a song
+
+**URL**: '/api/Track/id/{id}'<br>
+**Method**: POST<br>
+**Parameters**: <br>
+- id:<br>
+  Type: **string**<br>
+  Required: Yes<br>
+  Description: Track's id<br>
+**Description**: This endpoint allows user to update a song. It returns either a success or an error message.<br>
+**Body**: <br>
+  Example of input to update song attributes
+```
+{"updateFields":
+    {
+        "Title": "Another New Song",
+        "Genre": "Jazz"
+    }
+}
+```
+**Example Request**:<br>
+  The example code below returns the songs returned for genre: Pop.
+
+```
+curl -X PUT \
+  https://songserver.onrender.com/api/Track/id/65cfc20c5c4f10a2f2e1cfe3/ \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -d '{"song":{
+    "Title": "Another New Song",
+    "Genre": "Jazz"
+    }}'
+
+```
+**Response**:<br>
+- HTTP Status Code: 200 OK
+- Response:
+```
+{
+    "message": 
+    "Track successfully updated."
+}
+```
+**Error Handling**: <br>
+- If id is not 24 characters long.
+     **HTTP Status Code**: 400
+     **Message**: Malformed parameter: the parameter id should be 24 characters long
+- If body is not provided by user:
+     **HTTP Status Code**: 400
+     **Message**: Missing request body: Song fields are incomplete
+- If body is provided by user without updateFields object:
+     **HTTP Status Code**: 400
+     **Message**: Malformed request body: Please provide a json data with key 'updateFields'
+- If updateFields object doesn't contain any valid field:
+     **HTTP Status Code**: 400
+     **Message**: Malformed request body: Please provide valid song fields to update
+- If artist attributes are missing in song object:
+     **HTTP Status Code**: 400
+     **Message**: Malformed request body: Please provide a first and last name for artist
+
+
+### 8. Remove a song
+
+**URL**: '/api/Track/id/{id}/'<br>
+**Method**: DELETE<br>
+**Description**: This endpoint allows user to delete a song from databse. It returns a success or an error message.<br>
+**Parameters**: <br>
+- id:<br>
+  Type: **string**<br>
+  Required: Yes<br>
+  Description: id is 24 characters long.<br>
+
+**Example Request**:<br>
+The example code below returns the songs returned for id '65cfc20c5c4f10a2f2e1cfe3'.<br>
+
 ```
 
-**Error Responses**:
+curl -X DELETE https://songserver.onrender.com/api/Track/id/65cfc20c5c4f10a2f2e1cfe3
+
+```
+**Response**:<br>
+- HTTP Status Code: 200 OK
+- Response:
+```
+ {
+    "data":
+        [
+            {
+                "_id":"65ce42d81c21bc2f1da3b6ce",
+                "Title":"The First Song",
+                "Artist":
+                    {
+                        "FirstName":"The Second",
+                        "LastName":"Artist"
+                    },
+                "Album":"The First Album",
+                "Genre":"Pop"
+            }
+        ],
+    "stats":
+        {
+            "totalSongs":1,
+            "totalArtists":1,
+            "totalAlbums":1,
+            "totalGenres":1
+        }
+}
+
+```
+
+**Resource Not Found**: <br>
+If song is not found in the  database, "data" object is an empty list. Same as in step 2.
+
+**Error Handling**: <br>
+- If id is not 24 characters long.
+     **HTTP Status Code**: 400
+     **Message**: Malformed parameter: the parameter id should be 24 characters long
+
+
+**General Error Responses**:
 - **400 Bad Request**: The request is malformed or missing required parameters.
 - **500 Internal Server Error**: An unexpected error occurred on the server.
 - **404 Resource Not Found**: The resource you requested is not found.

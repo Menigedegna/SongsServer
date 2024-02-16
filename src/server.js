@@ -159,11 +159,15 @@ router.post("/Track/", function (req, res, next) {
 
     // check if req.body is provided
     if (!req.body){
-        return next({message: "Please provide a request body" });
+        const error = new Error('Missing request body: Please provide a request body');
+        error.status = 400;
+        return next(error);
     }
     // check if json data song is included in req.body
     if (!Object.keys(req.body).includes("song")){
-        return next({message: "Please provide a json data with key 'song'" });
+        const error = new Error("Malformed request body: Please provide a json data with key 'song'");
+        error.status = 400;
+        return next(error);
     }
     const {song} = req.body;
     addOneSong(song, function (err, data) {
@@ -172,12 +176,11 @@ router.post("/Track/", function (req, res, next) {
         }
         if (!data) {
           console.log("/api/Track - (POST) : Missing `done()` argument");
-          return next({ message: "Unable to update database" });
+          const error = new Error("The requested song was not found in database");
+          error.status = 404;
+          return next(error);
         }
-        res
-            .status(200)
-            .type("txt")
-            .send("Track successfully added.");       
+        res.json({message:"Track successfully added."});       
     });
 });
 
@@ -187,11 +190,16 @@ router.put("/Track/id/:id/", function (req, res, next) {
     let id = req.params.id;
     // check if req.body is provided
     if (!req.body){
-        return next({error: "Please provide a json data in request body" });
+        const error = new Error('Missing request body: Please provide a json data in request body');
+        error.status = 400;
+        return next(error);
+        // return next({error: "Please provide a json data in request body" });
     }
     // check if json data song is included in req.body
     if (!Object.keys(req.body).includes("updateFields")){
-        return next({error: "Please provide a json data with key 'updateFields'" });
+        const error = new Error("Malformed request body: Please provide a json data with key 'updateFields'");
+        error.status = 400;
+        return next(error);
     }
     const {updateFields} = req.body;
     try {
@@ -201,12 +209,11 @@ router.put("/Track/id/:id/", function (req, res, next) {
             }
             if (!data) {
                 console.log(`/api/Track/id/${id} - (PUT) : Missing 'done()' argument`);
-                return next({ message: "Unable to find track with id" });
+                const error = new Error("The requested song was not found in database");
+                error.status = 404;
+                return next(error);
             }
-            res
-            .status(200)
-            .type("txt")
-            .send("Track successfully updated.");   
+            res.json({message: "Track successfully updated."});   
         });
     } catch (e){
         console.log(e);
@@ -225,12 +232,11 @@ router.delete("/Track/id/:id/", function (req, res, next) {
             }
             if (!data) {
                 console.log(`/api/Track/id/${id} - (DELETE) : Missing 'done()' argument`);
-                return next({ message: "Unable to find track with id" });
+                const error = new Error("The requested song was not found in database");
+                error.status = 404;
+                return next(error);
             }
-            res
-                .status(200)
-                .type("txt")
-                .send("Track successfully deleted.");        
+            res.json({message:"Track successfully deleted."});        
             });
     } catch(e){
         console.log(e);

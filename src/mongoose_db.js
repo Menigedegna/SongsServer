@@ -78,12 +78,16 @@ const addOneSong = async(songObject, done) => {
   const fields = ['Title', 'Artist', 'Album', 'Genre'];
   const allFieldsAreValidated = checkAllFieldsArePresent(fields, songObject);
   if (!allFieldsAreValidated){
-    done({message: 'Song input fields are incomplete. Please make sure the following fields are filled: Title, Artist, Album, Genre'})
+    const error = new Error('Malformed request body: Song fields are incomplete');
+    error.status = 400;
+    return done(error);
   }
   const artistField = ['FirstName', 'LastName'];
   const artistFieldsAreValidated = checkAllFieldsArePresent(artistField, songObject['Artist']);
   if (!artistFieldsAreValidated){
-    done({message: 'Please provide a first name and last name for artist {FirstName: str, LastName: str}'});
+    const error = new Error('Malformed request body: Please provide a first and last name for artist');
+    error.status = 400;
+    return done(error);
   }
   // clean string input for each field
   let cleanedSong = {};
@@ -128,7 +132,9 @@ const findSongById = async(songId, done) => {
       done(err);
     }
   }else{
-    done({message: "id is 24 characters long"})
+    const error = new Error('Malformed parameter: the parameter id should be 24 characters long');
+    error.status = 400;
+    done(error);
   }
 
 };
@@ -156,25 +162,35 @@ const findSongAndUpdate = async(songId, updateFields, done) => {
    * @param {object} updateFields dictionary containing title and/or artist and/or album and/or genre
    * @returns None
    */
+  if(!is24CharHexString(songId)){
+    const error = new Error('Malformed parameter: the parameter id should be 24 characters long');
+    error.status = 400;
+    return done(error);
+  }
   songId = new mongoose.Types.ObjectId(songId);
   const fields = ['Title', 'Artist', 'Album', 'Genre'];
-  const correctFields = Object.keys(updateFields).filter(field =>{ 
+  let correctFields = {}
+  Object.keys(updateFields).forEach(field =>{ 
       if(fields.includes(field)){
-          return field;
+          return correctFields[field]=updateFields[field];
       }
   });
-  if ( correctFields.length==0 ){
-    done({message: 'Please provide valid fields to update.'})
+  if ( Object.keys(correctFields).length==0 ){
+    const error = new Error('Malformed request body: Please provide valid song fields to update');
+    error.status = 400;
+    return done(error)
   }else{
-    if ( !Object.keys(updateFields["Artist"]).includes("FirstName") 
-      || !Object.keys(updateFields["Artist"]).includes("LastName") 
+    if ( Object.keys(correctFields).includes("Artist") 
+    && ( !Object.keys(correctFields["Artist"]).includes("FirstName") || !Object.keys(correctFields["Artist"]).includes("LastName"))
     ){
-      done({message: 'Please provide valid fields for Artist to update track.'})
+      const error = new Error('Malformed request body: Please provide valid fields for Artist to update track');
+      error.status = 400;
+      return done(error)
     }
   }
   // clean string input for each field
   const cleanedInput = {}
-  correctFields.forEach(field => {
+  Object.keys(correctFields).forEach(field => {
     if (field=="Artist"){
       cleanedInput[field]={
         "FirstName": cleanStrInput(updateFields[field]["FirstName"]),
@@ -205,6 +221,11 @@ const removeSongById = async(songId, done) => {
    * @param {string} songId song id
    * @returns None
    */
+  if(!is24CharHexString(songId)){
+    const error = new Error('Malformed parameter: the parameter id should be 24 characters long');
+    error.status = 400;
+    return done(error);
+  }
   songId = new mongoose.Types.ObjectId(songId);
   try {
     const songsFound = await Songs.findOneAndDelete({_id: songId});
