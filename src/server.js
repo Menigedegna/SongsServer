@@ -177,7 +177,7 @@ router.post("/Track/", function (req, res, next) {
         res
             .status(200)
             .type("txt")
-            .send(CommandSucceededEvent.message || "Track successfully added.");       
+            .send("Track successfully added.");       
     });
 });
 
@@ -206,7 +206,7 @@ router.put("/Track/id/:id/", function (req, res, next) {
             res
             .status(200)
             .type("txt")
-            .send(CommandSucceededEvent.message || "Track successfully updated.");   
+            .send("Track successfully updated.");   
         });
     } catch (e){
         console.log(e);
@@ -230,7 +230,7 @@ router.delete("/Track/id/:id/", function (req, res, next) {
             res
                 .status(200)
                 .type("txt")
-                .send(CommandSucceededEvent.message || "Track successfully deleted.");        
+                .send("Track successfully deleted.");        
             });
     } catch(e){
         console.log(e);
