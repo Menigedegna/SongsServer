@@ -109,21 +109,28 @@ const addOneSong = async(songObject, done) => {
   }
 };
 
+const is24CharHexString = (value) => typeof value === 'string' && /^[0-9a-fA-F]{24}$/.test(value);
+
 const findSongById = async(songId, done) => {
   /**
    * @description Function finds a song by id
    * @param {string} songId song id
    * @returns None
    */
-  songId = new mongoose.Types.ObjectId(songId);
-  try {
-    const songsFound = await Songs.findById({_id: songId}).lean().select({__v: 0});
-    console.log(songsFound);
-    done(null, songsFound);  
-  } catch (err) {
-    console.error(err);
-    done(err);
+  if(is24CharHexString(songId)){
+    songId = new mongoose.Types.ObjectId(songId);
+    try {
+      const songsFound = await Songs.findById({_id: songId}).lean().select({__v: 0});
+      console.log(songsFound);
+      done(null, songsFound);  
+    } catch (err) {
+      console.error(err);
+      done(err);
+    }
+  }else{
+    done({message: "id is 24 characters long"})
   }
+
 };
 
 const findSongsByField = async(fieldValue, done) => {
