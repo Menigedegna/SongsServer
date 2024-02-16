@@ -1,5 +1,5 @@
 {
-  "name": "code_challenge_songs_backend",
+  "name": "SongsServer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

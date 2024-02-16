@@ -260,5 +260,5 @@ app.use(function (req, res) {
 });
 
 const listener = app.listen(process.env.PORT || 3000, function () {
-  console.log("Code_Challenge_Songs server is running on http://localhost:" + listener.address().port);
+  console.log("SongsServer is running on port:" + listener.address().port);
 });
