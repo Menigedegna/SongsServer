@@ -19,7 +19,7 @@ const enableCORS = function (req, res, next) {
         console.log(req.method);
         res.set({
           "Access-Control-Allow-Origin": origin,
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers":
             "Origin, X-Requested-With, Content-Type, Accept",
         });
