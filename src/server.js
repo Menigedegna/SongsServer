@@ -13,7 +13,7 @@ const router = express.Router();
 
 const enableCORS = function (req, res, next) {
     if (!process.env.DISABLE_XORIGIN) {
-      const allowedOrigins = ["front-end-deployment-site"];
+      const allowedOrigins = ["https://songviewer.netlify.app/"];
       const origin = req.headers.origin;
       if (!process.env.XORIGIN_RESTRICT || allowedOrigins.indexOf(origin) > -1) {
         console.log(req.method);
