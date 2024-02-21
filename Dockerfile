@@ -3,8 +3,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-ARG MONGO_URL
-ENV MONGO_URL ${MONGO_URL}
+ARG MONGO_URI
+ENV MONGO_URI ${MONGO_URI}
 ENV PORT=3000
 EXPOSE 3000
 CMD ["npm", "start"]
