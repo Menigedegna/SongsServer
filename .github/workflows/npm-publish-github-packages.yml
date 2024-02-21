@@ -4,7 +4,10 @@
 name: Docker image for songServer
 
 on:
-  push
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build_and_publish:
@@ -14,7 +17,4 @@ jobs:
       - name: build and publish the image
         env:
           MONGO_URL: ${{ secrets.MONGO_URL }}
-      - run: |
-          docker login --username Menigedegna --password ${{secrets.GHCR}}
-          docker build . --tag ghcr.io/menigedegna/songsserver:latest
-          docker push ghcr.io/menigedegna/songsserver:latest
+      - run: docker build . --file Dockerfile --tag songsserver:latest
