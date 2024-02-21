@@ -10,7 +10,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  MONGO_URL: ${{ secrets.MONGO_URL }}
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
@@ -45,7 +44,7 @@ jobs:
         with:
           context: .
           build-args: |
-            "MONGO_URL=${{secrets.MONGO_URL}}"
+            "MONGO_URI=${{secrets.MONGO_URI}}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
