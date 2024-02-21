@@ -17,5 +17,5 @@ jobs:
           build-args: "MONGO_URL=${{ secrets.MONGO_URL }}"
       - run: |
           docker login --username Menigedegna --password ${{secrets.GHCR}}
-          docker build -t ghcr.io/menigedegna/songsserver:latest .
+          docker build . --tag ghcr.io/menigedegna/songsserver:latest
           docker push ghcr.io/menigedegna/songsserver:latest
