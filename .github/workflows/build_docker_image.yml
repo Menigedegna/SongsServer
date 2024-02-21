@@ -1,4 +1,3 @@
-# This workflow will build docker image
 name: Docker image for songServer
 
 on:
@@ -12,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest    
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
       
       - name: build and publish the image
         env:
           MONGO_URL: ${{ secrets.MONGO_URL }}
-      - run: docker build . --file Dockerfile --tag songsserver:$(date +%s)
+        run: docker build . --file Dockerfile --tag songsserver:$(date +%s)
